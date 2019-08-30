@@ -5,6 +5,7 @@ import keras.layers as layers
 from keras.utils import np_utils
 from keras.preprocessing.image import ImageDataGenerator
 from batch_normalization import CustomizedBatchNorm
+from datetime import datetime
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -66,7 +67,7 @@ def evaluate_model(X_train, X_test, Y_train, Y_test, BN = False):
         model.add(layers.Activation("relu"))
 
         model.add(layers.Dense(units=84))
-        #model.add(CustomizedBatchNorm())
+        model.add(CustomizedBatchNorm())
         model.add(layers.Activation("relu"))
 
         model.add(layers.Dense(units=10, activation='softmax'))
@@ -75,7 +76,7 @@ def evaluate_model(X_train, X_test, Y_train, Y_test, BN = False):
 
     model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
 
-    EPOCHS = 10
+    EPOCHS = 20
     BATCH_SIZE = 128
 
     steps_per_epoch = X_train.shape[0]//BATCH_SIZE
@@ -99,19 +100,23 @@ def evaluate_model(X_train, X_test, Y_train, Y_test, BN = False):
 
 X_train, X_test, Y_train, Y_test = create_dataset()
 
-
+start = datetime.now()
 history, score = evaluate_model(X_train, X_test, Y_train, Y_test)
+time_delta = datetime.now() - start
+start = datetime.now()
+history_nb, score_nb = evaluate_model(X_train, X_test, Y_train, Y_test, BN=True)
+time_delta_nb = datetime.now() - start
 
-print('Test loss without Bach Normalization:', score[0])
-print('Test accuracy without Bach Normalization: ', score[1])
+print('training without Batch Normalization took {}s.'.format(time_delta))
+print('Test loss without Batch Normalization:', score[0])
+print('Test accuracy without Batch Normalization: ', score[1])
+
+print('training with Batch Normalization took {}s.'.format(time_delta_nb))
+print('Test loss with Batch Normalization:', score_nb[0])
+print('Test accuracy with Batch Normalization: ', score_nb[1])
 
 train_acc = history.history['acc']
 test_acc = history.history['val_acc']
-
-history_nb, score_nb = evaluate_model(X_train, X_test, Y_train, Y_test, BN=True)
-print('Test loss with Bach Normalization:', score_nb[0])
-print('Test accuracy with Bach Normalization: ', score_nb[1])
-
 train_acc_nb = history_nb.history['acc']
 test_acc_nb = history_nb.history['val_acc']
 
