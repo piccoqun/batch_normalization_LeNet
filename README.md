@@ -1,4 +1,4 @@
-# Customized Batch Normalization on LeNet network
+# Customized Batch Normalization on LeNet
 
 ## Model
 **Data**: MNIST
